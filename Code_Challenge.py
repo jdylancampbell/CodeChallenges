@@ -24,7 +24,7 @@ def amazon():
     doc = BeautifulSoup(response, "html.parser")
 
     pagetext = doc.find(class_="s-pagination-item s-pagination-disabled")
-    max_pages = 3  # int(str(pagetext).split("/")[-2].split(">")[-1][:-1])
+    max_pages = int(str(pagetext).split("/")[-2].split(">")[-1][:-1])
 
     for page_num in range(1, 2):
         url = f"https://www.amazon.com/s?k={products}&page={page_num}&crid=XXPMXZ4FNAA1&qid=1672680996&sprefix={products}%2Caps%2C111&ref=sr_pg_{page_num}"
