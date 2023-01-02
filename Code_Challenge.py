@@ -3,8 +3,12 @@ import re
 from bs4 import BeautifulSoup
 
 # Ask the user for the product they want to find prices for
-product = input("What product would you like to search for?")
+product = input("What computer product would you like to search for?\n")
 products = product.replace(" ", "+")
+pagestosearch = input("How many pages would you like to scrape?\n")
+while not pagestosearch.replace('.','',1).isdigit():
+        print('Invalid Entry, please enter a whole number that is greater than 0.')
+        pagestosearch = input("How many pages would you like to scrape?\n")
 # Send a GET request to the URL and get the response
 header = ({'User-Agent':
                'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
@@ -18,6 +22,7 @@ def amazon():
     global products
     global header
     global items_found
+    global pagestosearch
 
     url = f"https://www.amazon.com/s?k={products}&crid=XXPMXZ4FNAA1&sprefix={products}%2Caps%2C127&ref=nb_sb_noss_1"
     response = requests.get(url, headers=header).text
@@ -25,8 +30,11 @@ def amazon():
 
     pagetext = doc.find(class_="s-pagination-item s-pagination-disabled")
     max_pages = int(str(pagetext).split("/")[-2].split(">")[-1][:-1])
-
-    for page_num in range(1, 2):
+    if max_pages < int(pagestosearch):
+        maxpage = max_pages
+    else:
+        maxpage = int(pagestosearch)
+    for page_num in range(1, maxpage + 1):
         url = f"https://www.amazon.com/s?k={products}&page={page_num}&crid=XXPMXZ4FNAA1&qid=1672680996&sprefix={products}%2Caps%2C111&ref=sr_pg_{page_num}"
         response = requests.get(url, headers=header).text
         doc = BeautifulSoup(response, "html.parser")
@@ -64,10 +72,12 @@ def newegg():
     # Finds the last page number so we know where to stop looking
     pagetext = doc.find(class_="list-tool-pagination-text").strong
     max_pages = int(str(pagetext).split("/")[-2].split(">")[-1][:-1])
+    if max_pages < int(pagestosearch):
+        maxpage = max_pages
+    else:
+        maxpage = int(pagestosearch)
 
-    items_found = {}
-
-    for page_num in range(1, 2):
+    for page_num in range(1, maxpage + 1):
         url = f"https://www.newegg.com/p/pl?d={products}&N=4131&page={page_num}"
         response = requests.get(url).text
         doc = BeautifulSoup(response, "html.parser")
